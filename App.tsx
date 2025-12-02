@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { MemoryRouter, Routes, Route, Link, useLocation, useSearchParams } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, Menu, X, Hotel } from 'lucide-react';
+import { MemoryRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, FileText, Settings, Menu, X } from 'lucide-react';
 import { InvoiceForm } from './components/InvoiceForm';
 import { SettingsForm } from './components/SettingsForm';
-import { HotelInvoiceForm } from './components/HotelInvoiceForm';
 import { Toast } from './components/Toast';
 import { Issuer } from './types';
 
@@ -26,13 +25,7 @@ const NavLink = ({ to, icon: Icon, label, isOpen }: { to: string; icon: any; lab
   );
 };
 
-// Wrapper component to handle URL params for hotel checkout
-const HotelInvoiceWrapper = ({ issuer, onNotify }: { issuer: Issuer; onNotify: (message: string, type: 'success' | 'error') => void }) => {
-  const [searchParams] = useSearchParams();
-  const checkoutId = searchParams.get('checkoutId');
 
-  return <HotelInvoiceForm issuer={issuer} checkoutId={checkoutId || undefined} onNotify={onNotify} />;
-};
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -119,7 +112,6 @@ function App() {
 
           <div className="p-6 max-w-7xl mx-auto">
             <Routes>
-              <Route path="/hotel-invoice" element={<HotelInvoiceWrapper issuer={issuer} onNotify={showToast} />} />
               <Route path="/" element={
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
