@@ -1,7 +1,7 @@
 import { HotelCheckout, InvoiceRequest, HotelInvoiceResponse } from '../types';
 
-// Configuración de API del sistema hotelero
-const HOTEL_API_URL = import.meta.env.VITE_HOTEL_API_URL || 'http://localhost:3000/api';
+// Configuración de API del sistema hotelero TroncalInn
+const HOTEL_API_URL = import.meta.env.VITE_HOTEL_API_URL || 'https://troncalinn-backend.onrender.com/api';
 const HOTEL_API_KEY = import.meta.env.VITE_HOTEL_API_KEY || '';
 
 /**
