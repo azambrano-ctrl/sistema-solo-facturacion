@@ -1,0 +1,5 @@
+{
+  "name": "SRI Factura Fácil",
+  "description": "A comprehensive React application for generating, signing, and managing Ecuadorian electronic invoices (SRI). Features XML generation, Modulus 11 access key calculation, and Gemini AI assistance for quick invoicing.",
+  "requestFramePermissions": []
+}
