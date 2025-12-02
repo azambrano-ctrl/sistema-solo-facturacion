@@ -97,3 +97,97 @@ export interface SriResponse {
   numeroComprobantes?: string;
   autorizaciones?: SriAuthorization[];
 }
+
+// ============================================
+// TIPOS PARA INTEGRACIÓN CON SISTEMA HOTELERO
+// ============================================
+
+/**
+ * Información del huésped del hotel
+ */
+export interface HotelGuest {
+  identificationType: IdentificationType;
+  identification: string;
+  name: string;
+  email: string;
+  address: string;
+  phone?: string;
+}
+
+/**
+ * Servicio consumido en el hotel (habitación, restaurante, spa, etc.)
+ */
+export interface HotelService {
+  code: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  discount: number;
+  taxRate: number; // 0, 12, 15, etc.
+  category?: 'ROOM' | 'FOOD' | 'SPA' | 'LAUNDRY' | 'OTHER';
+}
+
+/**
+ * Datos del checkout del hotel
+ */
+export interface HotelCheckout {
+  checkoutId: string;
+  reservationId: string;
+  guest: HotelGuest;
+  services: HotelService[];
+  checkInDate: string;
+  checkOutDate: string;
+  totalAmount: number;
+  paymentMethod: string; // '01' = efectivo, '20' = otros
+  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  notes?: string;
+}
+
+/**
+ * Request para generar factura desde checkout hotelero
+ */
+export interface InvoiceRequest {
+  checkoutId: string;
+  guest: HotelGuest;
+  services: HotelService[];
+  paymentMethod: string;
+  checkoutDate: string;
+  additionalInfo?: {
+    reservationNumber?: string;
+    roomNumber?: string;
+    nights?: number;
+  };
+}
+
+/**
+ * Respuesta de generación de factura para el hotel
+ */
+export interface HotelInvoiceResponse {
+  success: boolean;
+  invoice?: {
+    claveAcceso: string;
+    numeroAutorizacion: string;
+    fechaAutorizacion: string;
+    secuencial: string;
+    pdfUrl?: string;
+    xmlUrl?: string;
+    importeTotal: number;
+  };
+  error?: {
+    code: string;
+    message: string;
+    details?: string;
+  };
+}
+
+/**
+ * Configuración de integración con el hotel
+ */
+export interface HotelIntegrationConfig {
+  enabled: boolean;
+  apiUrl: string;
+  apiKey: string;
+  autoGenerateInvoice: boolean;
+  sendEmailToGuest: boolean;
+  defaultPaymentMethod: string;
+}
