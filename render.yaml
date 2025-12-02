@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: sri-facturacion
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_GEMINI_API_KEY
+        sync: false
