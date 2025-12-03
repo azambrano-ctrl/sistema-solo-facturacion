@@ -116,15 +116,15 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="text-gray-500 text-sm font-medium">Facturas Emitidas (Mes)</div>
-                    <div className="text-3xl font-bold mt-2 text-gray-900">124</div>
+                    <div className="text-3xl font-bold mt-2 text-gray-900">0</div>
                   </div>
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="text-gray-500 text-sm font-medium">Monto Total</div>
-                    <div className="text-3xl font-bold mt-2 text-gray-900">$45,230.50</div>
+                    <div className="text-3xl font-bold mt-2 text-gray-900">$0.00</div>
                   </div>
                   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div className="text-gray-500 text-sm font-medium">Pendientes Autorización</div>
-                    <div className="text-3xl font-bold mt-2 text-sri-red">2</div>
+                    <div className="text-3xl font-bold mt-2 text-sri-red">0</div>
                   </div>
 
                   <div className="md:col-span-3 bg-white p-6 rounded-xl shadow-sm border border-gray-200 mt-2">
