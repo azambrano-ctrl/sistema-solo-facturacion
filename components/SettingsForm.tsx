@@ -68,16 +68,42 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
       const result = await response.json();
       console.log('✅ Configuración guardada en backend:', result);
 
-      // También guardar localmente para uso inmediato
-      localStorage.setItem('issuer', JSON.stringify(issuer));
+      // También guardar localmente para uso inmediato (sin el archivo File)
+      const issuerToSave = {
+        ruc: issuer.ruc,
+        razonSocial: issuer.razonSocial,
+        nombreComercial: issuer.nombreComercial,
+        dirMatriz: issuer.dirMatriz,
+        dirEstablecimiento: issuer.dirEstablecimiento,
+        obligadoContabilidad: issuer.obligadoContabilidad,
+        codEstab: issuer.codEstab,
+        codPtoEmi: issuer.codPtoEmi,
+        signaturePassword: issuer.signaturePassword,
+        env: issuer.env,
+        signatureFile: null // No guardar el File object
+      };
+      localStorage.setItem('issuer', JSON.stringify(issuerToSave));
 
       onNotify('Configuración guardada correctamente en el servidor', 'success');
     } catch (error) {
       console.error('❌ Error al guardar configuración:', error);
       onNotify('Error al guardar configuración. Guardado solo localmente.', 'error');
 
-      // Fallback: guardar solo localmente
-      localStorage.setItem('issuer', JSON.stringify(issuer));
+      // Fallback: guardar solo localmente (sin el archivo File)
+      const issuerToSave = {
+        ruc: issuer.ruc,
+        razonSocial: issuer.razonSocial,
+        nombreComercial: issuer.nombreComercial,
+        dirMatriz: issuer.dirMatriz,
+        dirEstablecimiento: issuer.dirEstablecimiento,
+        obligadoContabilidad: issuer.obligadoContabilidad,
+        codEstab: issuer.codEstab,
+        codPtoEmi: issuer.codPtoEmi,
+        signaturePassword: issuer.signaturePassword,
+        env: issuer.env,
+        signatureFile: null
+      };
+      localStorage.setItem('issuer', JSON.stringify(issuerToSave));
     }
   };
 
