@@ -50,6 +50,47 @@ function App() {
     setToast({ message, type });
   };
 
+  // Cargar configuración desde el backend al iniciar
+  React.useEffect(() => {
+    const loadConfigFromBackend = async () => {
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://troncalinn-backend.onrender.com';
+        const response = await fetch(`${backendUrl}/api/sri-settings`);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.settings) {
+            const settings = data.settings;
+
+            // Actualizar el estado del issuer con los datos del backend
+            setIssuer({
+              ruc: settings.ruc || '',
+              razonSocial: settings.razonSocial || '',
+              nombreComercial: settings.nombreComercial || '',
+              dirMatriz: settings.dirMatriz || '',
+              dirEstablecimiento: settings.dirEstablecimiento || '',
+              obligadoContabilidad: settings.obligadoContabilidad || 'SI',
+              codEstab: settings.estab || '001',
+              codPtoEmi: settings.ptoEmi || '001',
+              signatureFile: null, // El archivo no se puede reconstruir desde Base64
+              signaturePassword: settings.firmaPassword || '',
+              env: settings.ambiente || '1'
+            });
+
+            console.log('✅ Configuración cargada desde el backend');
+          }
+        } else {
+          console.log('ℹ️ No hay configuración guardada en el backend, usando valores por defecto');
+        }
+      } catch (error) {
+        console.error('❌ Error al cargar configuración del backend:', error);
+        console.log('ℹ️ Usando configuración por defecto');
+      }
+    };
+
+    loadConfigFromBackend();
+  }, []);
+
   return (
     <MemoryRouter>
       <div className="min-h-screen bg-gray-50 flex font-sans">
