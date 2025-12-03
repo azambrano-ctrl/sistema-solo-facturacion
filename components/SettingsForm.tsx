@@ -22,9 +22,63 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
     }
   };
 
-  const handleSave = () => {
-    // Here you would typically save to local storage or backend
-    onNotify('Configuración guardada correctamente', 'success');
+  const handleSave = async () => {
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://troncalinn-backend.onrender.com';
+
+      // Convertir archivo .p12 a Base64 si existe
+      let firmaP12Base64 = null;
+      if (issuer.signatureFile) {
+        const reader = new FileReader();
+        firmaP12Base64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(issuer.signatureFile);
+        });
+      }
+
+      // Enviar configuración al backend
+      const response = await fetch(`${backendUrl}/api/sri-settings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          razonSocial: issuer.razonSocial,
+          nombreComercial: issuer.nombreComercial,
+          ruc: issuer.ruc,
+          dirMatriz: issuer.dirMatriz,
+          dirEstablecimiento: issuer.dirEstablecimiento,
+          obligadoContabilidad: issuer.obligadoContabilidad,
+          ambiente: issuer.env,
+          estab: issuer.codEstab,
+          ptoEmi: issuer.codPtoEmi,
+          firmaP12: firmaP12Base64,
+          firmaPassword: issuer.signaturePassword,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al guardar configuración en el backend');
+      }
+
+      const result = await response.json();
+      console.log('✅ Configuración guardada en backend:', result);
+
+      // También guardar localmente para uso inmediato
+      localStorage.setItem('issuer', JSON.stringify(issuer));
+
+      onNotify('Configuración guardada correctamente en el servidor', 'success');
+    } catch (error) {
+      console.error('❌ Error al guardar configuración:', error);
+      onNotify('Error al guardar configuración. Guardado solo localmente.', 'error');
+
+      // Fallback: guardar solo localmente
+      localStorage.setItem('issuer', JSON.stringify(issuer));
+    }
   };
 
   // Shared input class for consistency - Soft gray background, dark text
@@ -37,12 +91,12 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
           <Key className="w-6 h-6 text-sri-blue" />
           Firma Electrónica
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
             <label className="block text-sm font-medium text-gray-700 mb-2">Archivo de Firma (.p12 o .pfx)</label>
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors text-sm font-medium shadow-sm"
               >
@@ -53,12 +107,12 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
                 {issuer.signatureFile ? issuer.signatureFile.name : 'Ningún archivo seleccionado'}
               </span>
             </div>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              accept=".p12,.pfx" 
-              className="hidden" 
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept=".p12,.pfx"
+              className="hidden"
             />
             <p className="text-xs text-gray-500 mt-2">
               Tu firma se procesa localmente en el navegador.
@@ -126,81 +180,81 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">Dirección Matriz</label>
             <div className="flex gap-2 items-center">
-                <MapPin className="w-4 h-4 text-gray-400" />
-                <input
+              <MapPin className="w-4 h-4 text-gray-400" />
+              <input
                 type="text"
                 value={issuer.dirMatriz}
                 onChange={(e) => handleChange('dirMatriz', e.target.value)}
                 className={inputClass}
-                />
+              />
             </div>
           </div>
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">Dirección Establecimiento</label>
             <div className="flex gap-2 items-center">
-                <MapPin className="w-4 h-4 text-gray-400" />
-                <input
+              <MapPin className="w-4 h-4 text-gray-400" />
+              <input
                 type="text"
                 value={issuer.dirEstablecimiento}
                 onChange={(e) => handleChange('dirEstablecimiento', e.target.value)}
                 className={inputClass}
-                />
+              />
             </div>
           </div>
         </div>
 
         <div className="mt-6 border-t pt-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Hash className="w-4 h-4" />
-                Configuración de Emisión
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                        <Globe className="w-3 h-3" /> Ambiente
-                    </label>
-                    <select
-                        value={issuer.env}
-                        onChange={(e) => handleChange('env', e.target.value)}
-                        className={inputClass}
-                    >
-                        <option value="1">PRUEBAS</option>
-                        <option value="2">PRODUCCIÓN</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Cod. Establecimiento</label>
-                    <input
-                    type="text"
-                    value={issuer.codEstab}
-                    onChange={(e) => handleChange('codEstab', e.target.value)}
-                    className={inputClass}
-                    maxLength={3}
-                    placeholder="001"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Cod. Punto Emisión</label>
-                    <input
-                    type="text"
-                    value={issuer.codPtoEmi}
-                    onChange={(e) => handleChange('codPtoEmi', e.target.value)}
-                    className={inputClass}
-                    maxLength={3}
-                    placeholder="001"
-                    />
-                </div>
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Hash className="w-4 h-4" />
+            Configuración de Emisión
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                <Globe className="w-3 h-3" /> Ambiente
+              </label>
+              <select
+                value={issuer.env}
+                onChange={(e) => handleChange('env', e.target.value)}
+                className={inputClass}
+              >
+                <option value="1">PRUEBAS</option>
+                <option value="2">PRODUCCIÓN</option>
+              </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Cod. Establecimiento</label>
+              <input
+                type="text"
+                value={issuer.codEstab}
+                onChange={(e) => handleChange('codEstab', e.target.value)}
+                className={inputClass}
+                maxLength={3}
+                placeholder="001"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Cod. Punto Emisión</label>
+              <input
+                type="text"
+                value={issuer.codPtoEmi}
+                onChange={(e) => handleChange('codPtoEmi', e.target.value)}
+                className={inputClass}
+                maxLength={3}
+                placeholder="001"
+              />
+            </div>
+          </div>
         </div>
       </div>
-      
+
       <div className="flex justify-end">
-        <button 
+        <button
           onClick={handleSave}
           className="flex items-center gap-2 bg-sri-blue text-white px-6 py-3 rounded-lg shadow hover:bg-blue-800 transition-colors"
         >
-            <Save className="w-5 h-5" />
-            Guardar Configuración
+          <Save className="w-5 h-5" />
+          Guardar Configuración
         </button>
       </div>
     </div>
