@@ -43,7 +43,8 @@ function App() {
     codPtoEmi: '001',
     signatureFile: null,
     signaturePassword: '',
-    env: '1' // Default to Pruebas
+    env: '1', // Default to Pruebas
+    hasBackendP12: false
   });
 
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -74,7 +75,8 @@ function App() {
               codPtoEmi: settings.ptoEmi || '001',
               signatureFile: null, // El archivo no se puede reconstruir desde Base64
               signaturePassword: settings.firmaPassword || '',
-              env: settings.ambiente || '1'
+              env: settings.ambiente || '1',
+              hasBackendP12: !!settings.firmaP12 // Indica si hay P12 en el backend
             };
 
             setIssuer(loadedIssuer);
@@ -83,6 +85,9 @@ function App() {
             localStorage.setItem('issuer', JSON.stringify(loadedIssuer));
 
             console.log('✅ Configuración cargada desde el backend');
+            if (settings.firmaP12) {
+              console.log('✅ Archivo P12 disponible en el backend');
+            }
           }
         } else {
           console.log('ℹ️ No hay configuración en backend, intentando cargar desde localStorage');
@@ -201,7 +206,9 @@ function App() {
                         <p className="text-sm text-gray-600 mt-2">
                           {issuer.signatureFile
                             ? <span className="text-green-600 font-medium">✓ Firma cargada: {issuer.signatureFile.name}</span>
-                            : <span className="text-sri-red font-medium">⚠ Firma electrónica pendiente.</span>
+                            : issuer.hasBackendP12
+                              ? <span className="text-green-600 font-medium">✓ Firma disponible en el servidor</span>
+                              : <span className="text-sri-red font-medium">⚠ Firma electrónica pendiente.</span>
                           }
                         </p>
                       </Link>

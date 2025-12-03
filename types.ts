@@ -32,6 +32,7 @@ export interface Issuer {
   signatureFile?: File | null;
   signaturePassword?: string;
   env: '1' | '2'; // 1: Pruebas, 2: Producción
+  hasBackendP12?: boolean; // Indicates if P12 file is stored in backend
 }
 
 export interface Customer {

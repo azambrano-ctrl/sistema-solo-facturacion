@@ -80,9 +80,13 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
         codPtoEmi: issuer.codPtoEmi,
         signaturePassword: issuer.signaturePassword,
         env: issuer.env,
-        signatureFile: null // No guardar el File object
+        signatureFile: null, // No guardar el File object
+        hasBackendP12: firmaP12Base64 ? true : issuer.hasBackendP12 // Marcar que hay P12 en backend
       };
       localStorage.setItem('issuer', JSON.stringify(issuerToSave));
+
+      // Actualizar el estado del issuer para reflejar que hay P12 en backend
+      onUpdate(issuerToSave);
 
       onNotify('Configuración guardada correctamente en el servidor', 'success');
     } catch (error) {
@@ -101,7 +105,8 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
         codPtoEmi: issuer.codPtoEmi,
         signaturePassword: issuer.signaturePassword,
         env: issuer.env,
-        signatureFile: null
+        signatureFile: null,
+        hasBackendP12: false // No hay P12 en backend si falló el guardado
       };
       localStorage.setItem('issuer', JSON.stringify(issuerToSave));
     }
@@ -130,7 +135,12 @@ export const SettingsForm: React.FC<Props> = ({ issuer, onUpdate, onNotify }) =>
                 {issuer.signatureFile ? 'Cambiar archivo' : 'Seleccionar archivo'}
               </button>
               <span className="text-sm text-gray-600 truncate max-w-xs">
-                {issuer.signatureFile ? issuer.signatureFile.name : 'Ningún archivo seleccionado'}
+                {issuer.signatureFile
+                  ? issuer.signatureFile.name
+                  : issuer.hasBackendP12
+                    ? '✓ Archivo disponible en el servidor'
+                    : 'Ningún archivo seleccionado'
+                }
               </span>
             </div>
             <input
