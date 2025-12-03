@@ -63,7 +63,7 @@ function App() {
             const settings = data.settings;
 
             // Actualizar el estado del issuer con los datos del backend
-            setIssuer({
+            const loadedIssuer = {
               ruc: settings.ruc || '',
               razonSocial: settings.razonSocial || '',
               nombreComercial: settings.nombreComercial || '',
@@ -75,16 +75,33 @@ function App() {
               signatureFile: null, // El archivo no se puede reconstruir desde Base64
               signaturePassword: settings.firmaPassword || '',
               env: settings.ambiente || '1'
-            });
+            };
+
+            setIssuer(loadedIssuer);
+
+            // También guardar en localStorage como respaldo
+            localStorage.setItem('issuer', JSON.stringify(loadedIssuer));
 
             console.log('✅ Configuración cargada desde el backend');
           }
         } else {
-          console.log('ℹ️ No hay configuración guardada en el backend, usando valores por defecto');
+          console.log('ℹ️ No hay configuración en backend, intentando cargar desde localStorage');
+          // Intentar cargar desde localStorage
+          const savedIssuer = localStorage.getItem('issuer');
+          if (savedIssuer) {
+            setIssuer(JSON.parse(savedIssuer));
+            console.log('✅ Configuración cargada desde localStorage');
+          }
         }
       } catch (error) {
         console.error('❌ Error al cargar configuración del backend:', error);
-        console.log('ℹ️ Usando configuración por defecto');
+        console.log('ℹ️ Intentando cargar desde localStorage');
+        // Fallback a localStorage
+        const savedIssuer = localStorage.getItem('issuer');
+        if (savedIssuer) {
+          setIssuer(JSON.parse(savedIssuer));
+          console.log('✅ Configuración cargada desde localStorage');
+        }
       }
     };
 
